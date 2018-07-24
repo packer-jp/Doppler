@@ -1,5 +1,6 @@
 import pyaudio
 import struct
+import threading
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -12,8 +13,9 @@ T = 10
 sonic = 340
 gain = 3
 step = 4410  # アニメーションを作るときのステップ
+comp = 0.9  # アニメーションと音をなるべく合わせるための補正
 
-# 再生
+# 音の再生関数
 def play(signal):
   p = pyaudio.PyAudio()
   stream = p.open(format = pyaudio.paInt16,
@@ -21,7 +23,7 @@ def play(signal):
                   rate = fs,
                   output = True)
 
-  signal = np.array(signal, dtype="int16")
+  signal = np.array(signal, dtype = "int16")
   signal = struct.pack("h" * len(signal), *signal)
 
   chunk = 1024
@@ -47,7 +49,7 @@ def src_x(t):
   return (2 * t - T) * 100 / 6
 
 def src_y(t):
-  return 10
+  return 20
 
 # 観測者の動き
 def obs_x(t):
@@ -75,13 +77,20 @@ for ti in t:
       lb = tau
   signal.append(org(tau) / ((ti - tau) * gain + 1))
 
-play(signal)
 
-# アニメーション
+# アニメーションの準備
 fig = plt.figure()
 ims = []
 for ti in t[::step]:
   im = plt.plot(src_x(ti), src_y(ti), 'ro', obs_x(ti), obs_y(ti), 'bo')
   ims.append(im)
-ani = animation.ArtistAnimation(fig, ims, interval = 1000 / fs * step)
+
+# 音の再生（別スレッド）
+thread_p = threading.Thread(target = play, args = ([signal]))
+thread_p.start()
+
+# アニメーションの再生
+ani = animation.ArtistAnimation(fig, ims, interval = 1000 * step / fs * comp, repeat = False)
 plt.show()
+
+# なんかちょっとずれる！
