@@ -9,11 +9,10 @@ fs = 44100
 A = 15000
 om1 = 2 * np.pi * 770
 om2 = 2 * np.pi * 960
-T = 10
+T = 20
 sonic = 340
 gain = 3
 step = 4410  # アニメーションを作るときのステップ
-comp = 0.9  # アニメーションと音をなるべく合わせるための補正
 
 # 音の再生関数
 def play(signal):
@@ -90,7 +89,7 @@ thread_p = threading.Thread(target = play, args = ([signal]))
 thread_p.start()
 
 # アニメーションの再生
-ani = animation.ArtistAnimation(fig, ims, interval = 1000 * step / fs * comp, repeat = False)
+ani = animation.ArtistAnimation(fig, ims, interval = 1000 * step / fs, repeat = False)
 plt.show()
 
 # なんかちょっとずれる！
