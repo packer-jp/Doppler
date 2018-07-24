@@ -13,6 +13,7 @@ T = 20
 sonic = 340
 gain = 3
 step = 4410  # アニメーションを作るときのステップ
+eps = 1e-9
 
 # 音の再生関数
 def play(signal):
@@ -64,18 +65,22 @@ def dist(x1, y1, x2, y2):
 t = np.linspace(0, T, fs * T)
 signal = []
 
-# シミュレーション（二分法）
+# シミュレーション（尺取法 + 二分法）
+idx = 0
 for ti in t:
-  lb = 0
-  ub = T
-  for j in range(0, 30):
-    tau = (lb + ub) / 2;
-    if (dist(src_x(tau), src_y(tau), obs_x(ti), obs_y(ti)) > (ti - tau) * sonic):
-      ub = tau
-    else:
-      lb = tau
-  signal.append(org(tau) / ((ti - tau) * gain + 1))
+  while idx < len(t) and dist(src_x(t[idx]), src_y(t[idx]), obs_x(ti), obs_y(ti)) < (ti - t[idx]) * sonic:
+    idx = idx + 1
 
+  lb = t[idx - 1] if idx > 0 else t[0]
+  ub = t[idx] if idx < len(t) else t[len(t) - 1]
+  for j in range(0, 10):
+    tau = (lb + ub) / 2;
+    if dist(src_x(tau), src_y(tau), obs_x(ti), obs_y(ti)) < (ti - tau) * sonic:
+      lb = tau
+    else:
+      ub = tau
+
+  signal.append(org(tau) / ((ti - tau) * gain + 1))
 
 # アニメーションの準備
 fig = plt.figure()
