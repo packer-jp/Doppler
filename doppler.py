@@ -16,10 +16,10 @@ step = 4410  # アニメーションを作るときのステップ
 # 再生
 def play(signal):
   p = pyaudio.PyAudio()
-  stream = p.open(format=pyaudio.paInt16,
-                  channels=1,
-                  rate=fs,
-                  output=True)
+  stream = p.open(format = pyaudio.paInt16,
+                  channels = 1,
+                  rate = fs,
+                  output = True)
 
   signal = np.array(signal, dtype="int16")
   signal = struct.pack("h" * len(signal), *signal)
