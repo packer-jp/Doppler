@@ -13,7 +13,6 @@ T = 20
 sonic = 340
 gain = 3
 step = 4410  # アニメーションを作るときのステップ
-eps = 1e-9
 
 # 音の再生関数
 def play(signal):
